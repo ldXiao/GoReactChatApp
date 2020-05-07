@@ -71,7 +71,10 @@ ws.on("connection", socket => {
             Chat.find({ "_id": doc._id })
             .populate("sender")
             .exec((err, doc)=> {
-                return socket.send(JSON.stringify(doc));
+                ws.clients.forEach(function each(client) {
+                  client.send(JSON.stringify(doc));
+                })
+                return;
             })
           })
       } catch (error) {
