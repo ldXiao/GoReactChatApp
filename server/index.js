@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 const server = require("http").createServer(app);
-// const io = require("socket.io")(server);
 const WebSocket = require('ws');
 const ws = new WebSocket.Server({ server });
 const config = require("./config/key");
