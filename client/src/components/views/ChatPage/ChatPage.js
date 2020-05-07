@@ -14,12 +14,14 @@ export class ChatPage extends Component {
     }
 
     componentDidMount() {
+        // is called only once
         let server = "http://localhost:5000";
 
         this.props.dispatch(getChats());
 
-        this.socket = io(server);
-
+        // this.socket = io(server);
+        this.socket = new WebSocket('ws://'+server+'/ws');
+        
         this.socket.on("Output Chat Message", messageFromBackEnd => {
             console.log(messageFromBackEnd)
             this.props.dispatch(afterPostMessage(messageFromBackEnd));

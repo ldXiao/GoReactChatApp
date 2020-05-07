@@ -2,39 +2,49 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/TutorialEdge/realtime-chat-go-react/pkg/websocket"
+	socketio "github.com/googollee/go-socket.io"
 )
 
-func serveWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("WebSocket Endpoint Hit")
-	conn, err := websocket.Upgrade(w, r)
-	if err != nil {
-		fmt.Fprintf(w, "%+v\n", err)
-	}
-
-	client := &websocket.Client{
-		Conn: conn,
-		Pool: pool,
-	}
-
-	pool.Register <- client
-	client.Read()
-}
-
-func setupRoutes() {
-	pool := websocket.NewPool()
-	go pool.Start()
-
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(pool, w, r)
-	})
-}
-
 func main() {
-	fmt.Println("Distributed Chat App v0.01")
-	setupRoutes()
-	http.Handle("/", http.FileServer(http.Dir("./build")))
-	http.ListenAndServe(":8090", nil)
+	io, err := socketio.NewServer(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	io.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		fmt.Println("connected:", s.ID())
+		return nil
+	})
+
+	io.OnEvent("/", "notice", func(s socketio.Conn, msg string) {
+		fmt.Println("notice:", msg)
+		s.Emit("reply", "have "+msg)
+	})
+	io.OnEvent("/chat", "msg", func(s socketio.Conn, msg string) string {
+		s.SetContext(msg)
+		return "recv " + msg
+	})
+	io.OnEvent("/", "bye", func(s socketio.Conn) string {
+		last := s.Context().(string)
+		s.Emit("bye", last)
+		s.Close()
+		return last
+	})
+	io.OnError("/", func(s socketio.Conn, e error) {
+		fmt.Println("meet error:", e)
+	})
+	io.OnDisconnect("/", func(s socketio.Conn, reason string) {
+		fmt.Println("closed", reason)
+	})
+	go io.Serve()
+	defer io.Close()
+
+	http.Handle("/socket.io/", io)
+	http.Handle("/", http.FileServer(http.Dir("./asset")))
+	log.Println("Serving at localhost:5000...")
+	log.Fatal(http.ListenAndServe(":5000", nil))
 }
