@@ -15,17 +15,29 @@ export class ChatPage extends Component {
 
     componentDidMount() {
         // is called only once
-        let server = "http://localhost:5000";
+        let server = "localhost:5000";
 
         this.props.dispatch(getChats());
 
         // this.socket = io(server);
-        this.socket = new WebSocket('ws://'+server+'/ws');
+        this.socket = new WebSocket("ws://localhost:5000");
         
-        this.socket.on("Output Chat Message", messageFromBackEnd => {
+        // this.socket.on("Output Chat Message", messageFromBackEnd => {
+        //     console.log(messageFromBackEnd)
+        //     this.props.dispatch(afterPostMessage(messageFromBackEnd));
+        // })
+        
+        this.socket.onopen = () =>{
+            console.log('web socket connected')
+        }
+
+        this.socket.onmessage = evt =>{
+            // the only message will get from server is 
+            // Output Chat message,
+            const messageFromBackEnd = JSON.parse(evt.data)
             console.log(messageFromBackEnd)
-            this.props.dispatch(afterPostMessage(messageFromBackEnd));
-        })
+            this.props.dispatch(afterPostMessage(messageFromBackEnd))
+        }
     }
 
     componentDidUpdate() {
@@ -40,7 +52,8 @@ export class ChatPage extends Component {
 
     renderCards = () =>
         this.props.chats.chats
-        && this.props.chats.chats.map((chat) => (
+        &&
+         this.props.chats.chats.map((chat) => (
             <ChatCard key={chat._id}  {...chat} />
         ));
 
@@ -66,20 +79,29 @@ export class ChatPage extends Component {
             .then(response => {
                 if (response.data.success) {
                     let chatMessage = response.data.url;
-                    let userId = this.props.user.userData._id
-                    let userName = this.props.user.userData.name;
-                    let userImage = this.props.user.userData.image;
-                    let nowTime = moment();
-                    let type = "VideoOrImage"
+                    // let userId = this.props.user.userData._id
+                    // let userName = this.props.user.userData.name;
+                    // let userImage = this.props.user.userData.image;
+                    // let nowTime = moment();
+                    // let type = "VideoOrImage"
 
-                    this.socket.emit("Input Chat Message", {
-                        chatMessage,
-                        userId,
-                        userName,
-                        userImage,
-                        nowTime,
-                        type
-                    });
+                    var msg ={
+                        chatMessage : response.data.url,
+                        userId: this.props.user.userData._id,
+                        userName : this.props.user.userData.name,
+                        userImage : this.props.user.userData.image,
+                        nowTime : moment(),
+                        type : "VideoOrImage"
+                    };
+                    this.socket.send(JSON.stringify(msg))
+                    // this.socket.emit("Input Chat Message", {
+                    //     chatMessage,
+                    //     userId,
+                    //     userName,
+                    //     userImage,
+                    //     nowTime,
+                    //     type
+                    // });
                 }
             })
     }
@@ -95,21 +117,31 @@ export class ChatPage extends Component {
 
 
 
-        let chatMessage = this.state.chatMessage
-        let userId = this.props.user.userData._id
-        let userName = this.props.user.userData.name;
-        let userImage = this.props.user.userData.image;
-        let nowTime = moment();
-        let type = "Text"
+        // let chatMessage = this.state.chatMessage;
+        // let userId = this.props.user.userData._id
+        // let userName = this.props.user.userData.name;
+        // let userImage = this.props.user.userData.image;
+        // let nowTime = moment();
+        // let type = "Text"
 
-        this.socket.emit("Input Chat Message", {
-            chatMessage,
-            userId,
-            userName,
-            userImage,
-            nowTime,
-            type
-        });
+        var msg = {
+            chatMessage : this.state.chatMessage,
+            userId: this.props.user.userData._id,
+            userName : this.props.user.userData.name,
+            userImage : this.props.user.userData.image,
+            nowTime : moment(),
+            type : "Text"
+        }
+        this.socket.send(JSON.stringify(msg))
+
+        // this.socket.emit("Input Chat Message", {
+        //     chatMessage,
+        //     userId,
+        //     userName,
+        //     userImage,
+        //     nowTime,
+        //     type
+        // });
         this.setState({ chatMessage: "" })
     }
 

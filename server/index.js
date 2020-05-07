@@ -4,7 +4,9 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 const server = require("http").createServer(app);
-const io = require("socket.io")(server);
+// const io = require("socket.io")(server);
+const WebSocket = require('ws');
+const ws = new WebSocket.Server({ server });
 const config = require("./config/key");
 
 const mongoose = require("mongoose");
@@ -53,12 +55,13 @@ app.post("/api/chat/uploadfiles", auth ,(req, res) => {
   })
 });
 
-io.on("connection", socket => {
+ws.on("connection", socket => {
 
-  socket.on("Input Chat Message", msg => {
+  socket.on("message", msg_json => {
 
     connect.then(db => {
       try {
+          var msg = JSON.parse(msg_json)
           let chat = new Chat({ message: msg.chatMessage, sender:msg.userId, type: msg.type })
 
           chat.save((err, doc) => {
@@ -68,8 +71,7 @@ io.on("connection", socket => {
             Chat.find({ "_id": doc._id })
             .populate("sender")
             .exec((err, doc)=> {
-
-                return io.emit("Output Chat Message", doc);
+                return socket.send(JSON.stringify(doc));
             })
           })
       } catch (error) {
