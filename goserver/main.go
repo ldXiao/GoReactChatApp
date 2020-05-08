@@ -34,22 +34,20 @@ func main() {
 	r.GET("/api/users/auth", func(c *gin.Context) {
 		var u models.User
 		// fmt.Println(c.Request.Header)
-
+		// auth request gives an empty body
 		tok, err := c.Cookie("w_auth")
-		fmt.Printf(tok)
-		if err != nil {
-			log.Fatal(err)
+		var succ bool = false
+		if err == nil {
+			succ = u.LoadByToken(tok)
 		}
-		err0 := c.BindJSON(&u)
-		fmt.Println(err0)
+		fmt.Printf(tok)
+
 		c.JSON(200, gin.H{
-			"isAuth": false,
-			"error":  true,
+			"isAuth": succ,
+			"error":  !succ,
 		})
 	})
 	r.POST("/api/users/login", func(c *gin.Context) {
-
-		fmt.Println("called01")
 
 		// fmt.Println(c.Request.Header)
 		var logi models.Login
@@ -80,13 +78,6 @@ func main() {
 		// and save it into database again
 		err = user.UpdateToken()
 		if err == nil {
-
-			// val := &http.Cookie{
-			// 	Name:   "w_auth",
-			// 	Value:  "test",
-			// 	MaxAge: 60,
-			// }
-			// http.SetCookie(c.Writer, val)
 			c.SetCookie("w_auth", user.Token, 0, "/", "localhost", false, true)
 			c.SetCookie("w_authExp", user.TokenExp, 0, "/", "localhost", false, true)
 			c.JSON(200, gin.H{
@@ -95,13 +86,17 @@ func main() {
 		}
 	})
 	r.POST("/api/users/register", func(c *gin.Context) {
-		fmt.Println("register called")
+
 		var user models.User
+		fmt.Println("register called")
 		err := c.Bind(&user)
+		fmt.Println("register called")
 		if err != nil {
-			log.Fatal(user)
+			log.Fatal(err)
 		}
+		fmt.Println("register called")
 		b, err := json.Marshal(user)
+		fmt.Println("register called")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -116,6 +111,7 @@ func main() {
 				"err":     "Invalid registrtion, email exists",
 			})
 		}
+		fmt.Println("register called")
 		fmt.Println(string(b))
 	})
 

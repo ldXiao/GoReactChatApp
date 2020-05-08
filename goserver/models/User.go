@@ -28,23 +28,67 @@ type User struct {
 
 //Save is exported
 func (u *User) Save() bool {
-	if u.Password != "" {
-		password := []byte(u.Password)
-		fmt.Println("input ", u.Password)
-		hash, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-		// the salt is automatically generated
-		if err != nil {
-			log.Println(err)
-		}
-		u.Password = string(hash)
-		u.GenerateToken()
 
-		fmt.Println(u.Password)
-		_, err = middleware.UsersCollection.InsertOne(context.Background(), u)
-		if err != nil {
-			log.Println(err)
-			return false
-		}
+	password := []byte(u.Password)
+	fmt.Println("register called2")
+	fmt.Println("input ", u.Password)
+	hash, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+	fmt.Println("register called1")
+	// the salt is automatically generated
+	if err != nil {
+		log.Println(err)
+	}
+	u.Password = string(hash)
+	u.GenerateToken()
+	fmt.Println("register called")
+	fmt.Println(u.Password)
+	fmt.Println("register called")
+	_, err = middleware.UsersCollection.InsertOne(context.Background(), u)
+	fmt.Println("register called")
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	return true
+
+}
+
+func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
+	hmacSecretString := "secret"
+	hmacSecret := []byte(hmacSecretString)
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		// check token signing method etc
+		return hmacSecret, nil
+	})
+
+	if err != nil {
+		return nil, false
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, true
+	} else {
+		log.Printf("Invalid JWT Token")
+		return nil, false
+	}
+}
+
+func (u *User) LoadByToken(tok string) bool {
+	claim, _ := extractClaims(tok)
+	fmt.Println("acfaew")
+	id := claim["user_id"].(string)
+	fmt.Println(id)
+	fmt.Println("acfaew")
+	objid, _ := primitive.ObjectIDFromHex(id)
+	singres := middleware.UsersCollection.FindOne(
+		context.TODO(),
+		bson.D{{"_id", objid}, {"token", tok}},
+	)
+
+	if singres.Err() == nil {
+		singres.Decode(&u)
+
+		fmt.Println("load by token", u.Email)
 		return true
 	}
 	return false
@@ -78,8 +122,10 @@ func (u *User) ComparePassword(plainPassword string) bool {
 func (u *User) GenerateToken() {
 	os.Setenv("ACCESS_SECRET", "secret") //this should be in an env file
 	atClaims := jwt.MapClaims{}
+	id := u.ID.Hex()
+
 	// atClaims["authorized"] = true
-	atClaims["user_id"] = u.ID
+	atClaims["user_id"] = id
 	// atClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	token, err := at.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
