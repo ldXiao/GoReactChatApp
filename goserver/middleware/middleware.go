@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // DB connection string
-const connectionString = "mongodb://localhost:27017"
+// const connectionString = "mongodb://localhost:27017"
 
-// const connectionString = "mongodb+srv://admin:1password1@cluster0-yauku.mongodb.net/test?retryWrites=true&w=majority"
+const connectionString = "mongodb+srv://admin:1password1@cluster0-yauku.mongodb.net/test?retryWrites=true&w=majority"
 
 // const connectionString = "Connection String"
 
@@ -20,9 +22,9 @@ const connectionString = "mongodb://localhost:27017"
 const dbName = "test"
 
 // Collection name
-const collNameUsers = "Users1"
+const collNameUsers = "users"
 
-const collNameChats = "Chats1"
+const collNameChats = "chats"
 
 // collection object/instance
 var UsersCollection *mongo.Collection
@@ -50,16 +52,18 @@ func init() {
 		log.Fatal(err)
 	}
 
-	// Check the connection
-	err = client.Ping(context.TODO(), nil)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	fmt.Println("Connected to MongoDB!")
 
 	UsersCollection = client.Database(dbName).Collection(collNameUsers)
+
+	indexName, err := UsersCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys:    bson.M{"email": 1},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		log.Fatal(err)
+		fmt.Fprint(os.Stderr, "%q failed, duplicate email insied the collection\n", indexName)
+	}
 
 	ChatsCollection = client.Database(dbName).Collection(collNameChats)
 
