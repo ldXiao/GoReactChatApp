@@ -145,7 +145,7 @@ func Router() *gin.Engine {
 
 		cur, _ := middleware.ChatsCollection.Find(context.TODO(), bson.D{})
 		// }
-		var doc []models.Chat_info
+		doc := []models.Chat_info{}
 		var err error = nil
 		for cur.Next(context.Background()) {
 			var chat models.Chat
@@ -156,7 +156,7 @@ func Router() *gin.Engine {
 
 		if err == nil {
 			if len(doc) == 0 {
-				c.JSON(200, gin.H{})
+				c.JSON(200, doc)
 			} else {
 				c.JSON(200, doc)
 			}
