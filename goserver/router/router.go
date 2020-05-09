@@ -2,9 +2,14 @@ package router
 
 import (
 	"context"
+	"crypto/sha1"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -163,6 +168,48 @@ func Router() *gin.Engine {
 		}
 		log.Println("Fetched ", len(doc), "chat history")
 	})
+
+	r.POST("/api/chat/uploadfiles", func(c *gin.Context) {
+		mf, fh, err := c.Request.FormFile("file")
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer mf.Close()
+		// create sha for file name
+		splits := strings.Split(fh.Filename, ".")
+		ext := splits[len(splits)-1]
+		h := sha1.New()
+		io.Copy(h, mf)
+		fname := fmt.Sprintf("%x", h.Sum(nil)) + "." + ext
+		// create new file
+		wd, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+		}
+		path := filepath.Join(wd, "../uploads", fname)
+		pathrel := filepath.Join("uploads", fname)
+		nf, err := os.Create(path)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer nf.Close()
+		// copy
+		mf.Seek(0, 0)
+		io.Copy(nf, mf)
+
+		if err != nil {
+			c.JSON(400, gin.H{
+				"success": false,
+				"err":     true,
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"success": true,
+				"url":     pathrel,
+			})
+		}
+	})
+	r.Static("/uploads", "../uploads")
 
 	return r
 }
