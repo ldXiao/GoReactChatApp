@@ -1,10 +1,13 @@
 /node_modules
 /build
 
+
 dev.js
 
 goserver/client
+goserver/uploads
 goserver/config
+goserver/tmp
 
 .DS_Store
 
