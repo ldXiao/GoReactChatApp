@@ -30,21 +30,17 @@ type User struct {
 func (u *User) Save() bool {
 
 	password := []byte(u.Password)
-	fmt.Println("register called2")
 	fmt.Println("input ", u.Password)
 	hash, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-	fmt.Println("register called1")
 	// the salt is automatically generated
 	if err != nil {
 		log.Println(err)
 	}
 	u.Password = string(hash)
 	u.GenerateToken()
-	fmt.Println("register called")
 	fmt.Println(u.Password)
-	fmt.Println("register called")
 	_, err = middleware.UsersCollection.InsertOne(context.Background(), u)
-	fmt.Println("register called")
+
 	if err != nil {
 		log.Println(err)
 		return false
@@ -75,10 +71,8 @@ func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
 
 func (u *User) LoadByToken(tok string) bool {
 	claim, _ := extractClaims(tok)
-	fmt.Println("acfaew")
 	id := claim["user_id"].(string)
 	fmt.Println(id)
-	fmt.Println("acfaew")
 	objid, _ := primitive.ObjectIDFromHex(id)
 	singres := middleware.UsersCollection.FindOne(
 		context.TODO(),
@@ -87,8 +81,6 @@ func (u *User) LoadByToken(tok string) bool {
 
 	if singres.Err() == nil {
 		singres.Decode(&u)
-
-		fmt.Println("load by token", u.Email)
 		return true
 	}
 	return false
@@ -97,11 +89,10 @@ func (u *User) LoadByToken(tok string) bool {
 func (u *User) UpdateToken() error {
 	// find the unique user with the email and only change the token
 	// TODO maybe add a method to update multiple file at once
-	fmt.Println("calledUpdateToken", u.Token)
 	singres := middleware.UsersCollection.FindOneAndUpdate(
 		context.TODO(),
 		bson.D{{"email", u.Email}},
-		bson.D{{"$set", bson.D{{"token", u.Token}}}},
+		bson.D{{"$set", bson.D{{"token", u.Token}, {"tokenExp", u.TokenExp}}}},
 	)
 	return singres.Err()
 }

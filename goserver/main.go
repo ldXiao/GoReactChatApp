@@ -1,11 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
-	"net/http/httputil"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ldXiao/GoReactChatApp/middleware"
@@ -14,19 +11,15 @@ import (
 	"golang.org/x/net/context"
 )
 
-func hah(w http.ResponseWriter, r *http.Request) {
-	_, err := httputil.DumpRequest(r, true)
-
-	if err != nil {
-		fmt.Println("called0")
-		fmt.Fprint(w, err.Error())
-	} else {
-		fmt.Println("called1")
-		fmt.Println(r.Cookie("w_auth"))
-	}
-}
-
-type Test_struct struct {
+type authmodel struct {
+	_id      string
+	isAdmin  bool
+	isAuth   bool
+	email    string
+	name     string
+	lastname string
+	role     int
+	image    string
 }
 
 func main() {
@@ -35,18 +28,37 @@ func main() {
 		var u models.User
 		// fmt.Println(c.Request.Header)
 		// auth request gives an empty body
+		// requestDump, err := httputil.DumpRequest(c.Request, true)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
+		// fmt.Println("body", string(requestDump))
 		tok, err := c.Cookie("w_auth")
 		var succ bool = false
 		if err == nil {
-			succ = u.LoadByToken(tok)
+			succ = u.LoadByToken(tok) // load every filed in to user and return succees
 		}
 		fmt.Printf(tok)
-
-		c.JSON(200, gin.H{
-			"isAuth": succ,
-			"error":  !succ,
-		})
+		if succ {
+			c.JSON(200, gin.H{
+				"isAuth":   succ,
+				"error":    !succ,
+				"_id":      u.ID.Hex(),
+				"isAdmin":  u.Role == 1,
+				"email":    u.Email,
+				"name":     u.Name,
+				"lastname": u.LastName,
+				"role":     u.Role,
+				"image":    u.Image,
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"isAuth": succ,
+				"error":  !succ,
+			})
+		}
 	})
+
 	r.POST("/api/users/login", func(c *gin.Context) {
 
 		// fmt.Println(c.Request.Header)
@@ -85,18 +97,14 @@ func main() {
 			})
 		}
 	})
+
 	r.POST("/api/users/register", func(c *gin.Context) {
 
 		var user models.User
-		fmt.Println("register called")
 		err := c.Bind(&user)
-		fmt.Println("register called")
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("register called")
-		b, err := json.Marshal(user)
-		fmt.Println("register called")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -111,8 +119,22 @@ func main() {
 				"err":     "Invalid registrtion, email exists",
 			})
 		}
-		fmt.Println("register called")
-		fmt.Println(string(b))
+	})
+
+	r.GET("/api/users/logout", func(c *gin.Context) {
+		var u models.User
+		tok, err := c.Cookie("w_auth")
+		var succ bool = false
+		if err == nil {
+			succ = u.LoadByToken(tok) // load every filed in to user and return succees
+		}
+		u.Token = ""
+		u.TokenExp = ""
+
+		u.UpdateToken()
+		c.JSON(200, gin.H{
+			"success": succ,
+		})
 	})
 
 	r.Run(":5000")
