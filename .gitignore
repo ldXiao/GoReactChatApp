@@ -1,11 +1,11 @@
 /node_modules
 /build
-
+/uploads
 
 dev.js
 
 goserver/client
-goserver/uploads
+
 goserver/config
 goserver/tmp
 
