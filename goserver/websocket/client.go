@@ -35,26 +35,22 @@ func (c *Client) Read() {
 			log.Println(err)
 			return
 		}
-		var chat_info map[string]string
-		// json.NewDecoder(p.(io.Reader)).Decode(&chat)
-		// message := models.Chat{
-		// 	Type:    chat.Type,
-		// 	Message: ,
-		// }
-		err = json.Unmarshal(p, &chat_info)
+		var chat_map map[string]string
+		err = json.Unmarshal(p, &chat_map)
 		if err != nil {
 			log.Fatal("failed")
 		}
-		fmt.Println(chat_info)
-		objid, err := primitive.ObjectIDFromHex(chat_info["userId"])
+		fmt.Println(chat_map)
+		objid, err := primitive.ObjectIDFromHex(chat_map["userId"])
 		var chat = models.Chat{
-			Type:    chat_info["type"],
-			Message: chat_info["chatMessage"],
+			Type:    chat_map["type"],
+			Message: chat_map["chatMessage"],
 			Sender:  objid,
 		}
-
-		c.Pool.Broadcast <- chat
-		fmt.Printf("Message Received: %+v\n", chat)
+		chat.Save()
+		chat_info := chat.GetChatInfo()
+		c.Pool.Broadcast <- chat_info
+		fmt.Printf("Message Received: %+v\n", chat_info)
 
 	}
 }

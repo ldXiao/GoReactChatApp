@@ -11,7 +11,6 @@ import (
 	"github.com/ldXiao/GoReactChatApp/middleware"
 	"github.com/ldXiao/GoReactChatApp/models"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var wsupgrader = websocket.Upgrader{
@@ -146,29 +145,24 @@ func Router() *gin.Engine {
 
 		cur, _ := middleware.ChatsCollection.Find(context.TODO(), bson.D{})
 		// }
-		var doc []models.Chat
-		var sample models.Chat
-		sample.ID, _ = primitive.ObjectIDFromHex("5eb6af835236b8ffbc985f62")
-		sample.CreatedAt = primitive.Timestamp{1, 1}
-		sample.UpdatedAt = primitive.Timestamp{1, 1}
-		sample.Message = "test"
-		sample.Sender, _ = primitive.ObjectIDFromHex("5eb6af835236b8ffbc985f61")
-		sample.Type = "Text"
-		err := cur.All(context.TODO(), &doc)
-		doc = append(doc, sample)
+		var doc []models.Chat_info
+		var err error = nil
+		for cur.Next(context.Background()) {
+			var chat models.Chat
+			err = cur.Decode(&chat)
+			doc = append(doc, chat.GetChatInfo())
+		}
+		// doc = append(doc, sample)
+
 		if err == nil {
-			c.JSON(200, doc)
+			if len(doc) == 0 {
+				c.JSON(200, gin.H{})
+			} else {
+				c.JSON(200, doc)
+			}
 		}
 		log.Println("Fetched ", len(doc), "chat history")
 	})
 
-	// r.GET("/", func(c *gin.Context) {
-	// 	c.String(200, "We got Gin")
-	// })
-
-	// r.GET("/ws", func(c *gin.Context) {
-	// 	fmt.Println("calledws")
-	// 	wshandler(c.Writer, c.Request)
-	// })
 	return r
 }

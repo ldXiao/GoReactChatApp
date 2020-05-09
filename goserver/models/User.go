@@ -25,6 +25,8 @@ type User struct {
 	TokenExp string             `json:"tokenExp, omitempty"`
 }
 
+func (u *User) isSender() {}
+
 //Save is exported
 func (u *User) Save() bool {
 
