@@ -17,4 +17,5 @@ require (
 	golang.org/x/crypto v0.0.0-20190530122614-20be4c3c3ed5
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
+	gopkg.in/olahol/melody.v1 v1.0.0-20170518105555-d52139073376
 )

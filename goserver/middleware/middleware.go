@@ -12,9 +12,9 @@ import (
 )
 
 // DB connection string
-const connectionString = "mongodb://localhost:27017"
+// const connectionString = "mongodb://localhost:27017"
 
-// const connectionString = "mongodb+srv://admin:1password1@cluster0-yauku.mongodb.net/test?retryWrites=true&w=majority"
+const connectionString = "mongodb+srv://admin:1password1@cluster0-yauku.mongodb.net/test?retryWrites=true&w=majority"
 
 // const connectionString = "Connection String"
 

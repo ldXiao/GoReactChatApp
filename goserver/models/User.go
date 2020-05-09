@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -30,7 +29,6 @@ type User struct {
 func (u *User) Save() bool {
 
 	password := []byte(u.Password)
-	fmt.Println("input ", u.Password)
 	hash, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	// the salt is automatically generated
 	if err != nil {
@@ -38,7 +36,6 @@ func (u *User) Save() bool {
 	}
 	u.Password = string(hash)
 	u.GenerateToken()
-	fmt.Println(u.Password)
 	_, err = middleware.UsersCollection.InsertOne(context.Background(), u)
 
 	if err != nil {
@@ -72,7 +69,6 @@ func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
 func (u *User) LoadByToken(tok string) bool {
 	claim, _ := extractClaims(tok)
 	id := claim["user_id"].(string)
-	fmt.Println(id)
 	objid, _ := primitive.ObjectIDFromHex(id)
 	singres := middleware.UsersCollection.FindOne(
 		context.TODO(),
@@ -99,11 +95,10 @@ func (u *User) UpdateToken() error {
 
 // ComparePassword is exported
 func (u *User) ComparePassword(plainPassword string) bool {
-	fmt.Println(u.Password)
+
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainPassword))
 	if err != nil {
 		log.Println(err)
-		fmt.Println(err)
 		return false
 	}
 	return true
