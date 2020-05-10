@@ -29,6 +29,7 @@ const tailFormItemLayout = {
     },
     sm: {
       span: 16,
+      
       offset: 8,
     },
   },
