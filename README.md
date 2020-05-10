@@ -1,3 +1,3 @@
 # GoReactChatApp
 
-Under construction
+Always under construction, see Demo
