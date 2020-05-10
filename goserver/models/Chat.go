@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/ldXiao/GoReactChatApp/middleware"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,12 +16,12 @@ type ChatInterface interface {
 }
 
 type Chat struct {
-	ID        primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
-	Message   string              `json:"message,omitempty"`
-	Sender    primitive.ObjectID  `json:"sender,omitempty" bson:"sender,omitempty"`
-	Type      string              `json:"type,omitempty"`
-	CreatedAt primitive.Timestamp `json:"createdAt"`
-	UpdatedAt primitive.Timestamp `json:"updatedAt"`
+	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Message   string             `json:"message,omitempty"`
+	Sender    primitive.ObjectID `json:"sender,omitempty" bson:"sender,omitempty"`
+	Type      string             `json:"type,omitempty"`
+	CreatedAt primitive.DateTime `json:"createdAt"`
+	UpdatedAt primitive.DateTime `json:"updatedAt"`
 }
 
 func (c Chat) isChat() {}
@@ -31,18 +32,20 @@ type Sender struct {
 }
 
 type Chat_info struct {
-	ID        primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
-	Message   string              `json:"message,omitempty"`
-	Sender    Sender              `json:"sender,omitempty" bson:"sender,omitempty"`
-	Type      string              `json:"type,omitempty"`
-	CreatedAt primitive.Timestamp `json:"createdAt"`
-	UpdatedAt primitive.Timestamp `json:"updatedAt"`
+	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Message   string             `json:"message,omitempty"`
+	Sender    Sender             `json:"sender,omitempty" bson:"sender,omitempty"`
+	Type      string             `json:"type,omitempty"`
+	CreatedAt primitive.DateTime `json:"createdAt"`
+	UpdatedAt primitive.DateTime `json:"updatedAt"`
 }
 
 func (c Chat_info) isChat() {}
 
 func (chat *Chat) Save() {
 	// id and timestamps are not initialized at this step
+	chat.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	chat.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 	doc, err := middleware.ChatsCollection.InsertOne(context.Background(), chat)
 	if err != nil {
 		fmt.Println(1)
