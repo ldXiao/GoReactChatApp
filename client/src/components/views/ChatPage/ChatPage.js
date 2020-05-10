@@ -171,7 +171,7 @@ export class ChatPage extends Component {
                                 <Input
                                     id="message"
                                     prefix={<Icon type="message" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                                    placeholder="Let's start talking"
+                                    placeholder="Enjoy"
                                     type="text"
                                     value={this.state.chatMessage}
                                     onChange={this.hanleSearchChange}

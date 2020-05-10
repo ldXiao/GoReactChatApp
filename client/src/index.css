@@ -37,3 +37,15 @@ input.error {
   height: 5px;
   margin-top: -12px;
 }
+
+
+.devicon-plain {
+  max-width: 6em;
+}
+
+.flexbox-container {
+  display: flex;
+  flex-direction: row;
+}
+
+
