@@ -5,7 +5,6 @@ dev.js
 
 goserver/client
 
-goserver/config
 goserver/tmp
 
 .DS_Store
