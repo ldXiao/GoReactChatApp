@@ -6,25 +6,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/ldXiao/GoReactChatApp/config"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// DB connection string
-const connectionString = "mongodb://localhost:27017"
-
-// const connectionString = "mongodb+srv://admin:1password1@cluster0-yauku.mongodb.net/test?retryWrites=true&w=majority"
-
 // const connectionString = "Connection String"
-
-// Database Name
-const dbName = "test"
-
-// Collection name
-const collNameUsers = "users"
-
-const collNameChats = "chats"
 
 // collection object/instance
 var UsersCollection *mongo.Collection
@@ -36,7 +24,7 @@ var ChatsCollection *mongo.Collection
 func init() {
 
 	// Set client options
-	clientOptions := options.Client().ApplyURI(connectionString)
+	clientOptions := options.Client().ApplyURI(config.ConnectionString)
 
 	// connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -54,7 +42,7 @@ func init() {
 
 	fmt.Println("Connected to MongoDB!")
 
-	UsersCollection = client.Database(dbName).Collection(collNameUsers)
+	UsersCollection = client.Database(config.DbName).Collection(config.CollNameUsers)
 
 	indexName, err := UsersCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys:    bson.M{"email": 1},
@@ -65,7 +53,7 @@ func init() {
 		fmt.Fprint(os.Stderr, "%q failed, duplicate email insied the collection\n", indexName)
 	}
 
-	ChatsCollection = client.Database(dbName).Collection(collNameChats)
+	ChatsCollection = client.Database(config.DbName).Collection(config.CollNameChats)
 
 	fmt.Println("Collection instance created!")
 }

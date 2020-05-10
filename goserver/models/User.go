@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/ldXiao/GoReactChatApp/config"
 	"github.com/ldXiao/GoReactChatApp/middleware"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -49,7 +50,7 @@ func (u *User) Save() bool {
 }
 
 func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
-	hmacSecretString := "secret"
+	hmacSecretString := config.HmacSecretString
 	hmacSecret := []byte(hmacSecretString)
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		// check token signing method etc
