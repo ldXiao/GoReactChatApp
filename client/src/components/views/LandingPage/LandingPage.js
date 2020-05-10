@@ -1,14 +1,20 @@
 import React from 'react'
 import { FaCoffee, FaReact } from "react-icons/fa";
+import {GO} from "../Icons/Icons";
+
+import "../../../devicon.css";
 
 function LandingPage() {
     return (
         <>
         <div className="app">
-    
-        <FaCoffee style={{ fontSize: '6.5rem' }}/>
+        <div>
+        <FaReact style={{color:"#49c" ,fontSize: '6.5rem' }}/>
+        <GO width={100} fill="#49c" />
+        </div>
+       
 
-            <span style={{ fontSize: '2rem' }}>Let's Start Coding!</span>
+            <span style={{ fontSize: '2rem' }}>Let's Start Chatting!</span>
         </div>
         <div style={{
             height: '20px', display: 'flex',
