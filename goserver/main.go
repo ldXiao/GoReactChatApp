@@ -29,7 +29,7 @@ func setupRoutes(r *gin.Engine) {
 	pool := websocket.NewPool()
 	go pool.Start()
 
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/ws", func(c *gin.Context) {
 		serveWs(pool, c.Writer, c.Request)
 	})
 }

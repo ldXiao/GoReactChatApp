@@ -18,7 +18,7 @@ export class ChatPage extends Component {
         this.props.dispatch(getChats());
 
         // this.socket = io(server);
-        this.socket = new WebSocket("ws://localhost:5000");
+        this.socket = new WebSocket("ws://localhost:5000/ws");
         
         // this.socket.on("Output Chat Message", messageFromBackEnd => {
         //     console.log(messageFromBackEnd)
