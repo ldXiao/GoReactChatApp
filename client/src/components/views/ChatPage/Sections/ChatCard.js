@@ -19,13 +19,13 @@ function ChatCard(props) {
                         props.message.substring(props.message.length - 3, props.message.length) === 'mp4' ?
                             <video
                                 style={{ maxWidth: '200px' }}
-                                src={`http://localhost:5000/${props.message}`} alt="video"
+                                src={window.location.origin+`/${props.message}`} alt="video"
                                 type="video/mp4" controls
                             />
                             :
                             <img
                                 style={{ maxWidth: '200px' }}
-                                src={`http://localhost:5000/${props.message}`}
+                                src={window.location.origin+`/${props.message}`}
                                 alt="img"
                             />
                         :
