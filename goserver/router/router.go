@@ -98,9 +98,10 @@ func Router() *gin.Engine {
 		user.GenerateToken()
 		// and save it into database again
 		err = user.UpdateToken()
+		domain := string(c.Request.URL.Host)
 		if err == nil {
-			c.SetCookie("w_auth", user.Token, 0, "/", "localhost", false, true)
-			c.SetCookie("w_authExp", user.TokenExp, 0, "/", "localhost", false, true)
+			c.SetCookie("w_auth", user.Token, 0, "/", domain, false, true)
+			c.SetCookie("w_authExp", user.TokenExp, 0, "/", domain, false, true)
 			c.JSON(200, gin.H{
 				"loginSuccess": true,
 			})
