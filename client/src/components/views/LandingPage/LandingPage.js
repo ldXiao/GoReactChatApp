@@ -1,5 +1,5 @@
 import React from 'react'
-import { FaCoffee, FaReact } from "react-icons/fa";
+import { FaReact } from "react-icons/fa";
 import {GO} from "../Icons/Icons";
 
 import "../../../devicon.css";

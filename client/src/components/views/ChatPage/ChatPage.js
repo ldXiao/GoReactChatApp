@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Form, Icon, Input, Button, Row, Col, } from 'antd';
-import io from "socket.io-client";
 import { connect } from "react-redux";
 import moment from "moment";
 import { getChats, afterPostMessage } from "../../../_actions/chat_actions"
@@ -15,7 +14,6 @@ export class ChatPage extends Component {
 
     componentDidMount() {
         // is called only once
-        let server = "localhost:5000";
 
         this.props.dispatch(getChats());
 
@@ -67,7 +65,7 @@ export class ChatPage extends Component {
 
 
 
-        let formData = new FormData;
+        let formData = new FormData();
 
         const config = {
             header: { 'content-type': 'multipart/form-data' }
@@ -78,7 +76,7 @@ export class ChatPage extends Component {
         Axios.post('api/chat/uploadfiles', formData, config)
             .then(response => {
                 if (response.data.success) {
-                    let chatMessage = response.data.url;
+                    // let chatMessage = response.data.url;
                     // let userId = this.props.user.userData._id
                     // let userName = this.props.user.userData.name;
                     // let userImage = this.props.user.userData.image;

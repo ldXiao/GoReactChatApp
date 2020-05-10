@@ -70,12 +70,12 @@ function LoginPage(props) {
           values,
           touched,
           errors,
-          dirty,
+          // dirty,
           isSubmitting,
           handleChange,
           handleBlur,
           handleSubmit,
-          handleReset,
+          // handleReset,
         } = props;
         return (
           <div className="app">
