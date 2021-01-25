@@ -2,7 +2,7 @@
 
 Always under construction, see Demo
 
-The front end is addaped from a detailed tutorial from [jaewonhimnae's react-nodejs app](https://github.com/jaewonhimnae/boilerplate-mern-stack). The backend is powered by golang and mongodb, with JWT authentication, password encrytion and websocket suppoert.
+The front end is addaped from a detailed tutorial from [jaewonhimnae's react-nodejs app](https://github.com/jaewonhimnae/boilerplate-mern-stack). The backend is powered by golang and mongodb, with JWT authentication, password encrytion and websocket support.
 
 major external dependence include
  * github.com/gin-gonic/gin v1.6.3
